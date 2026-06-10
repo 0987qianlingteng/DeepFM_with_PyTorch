@@ -327,7 +327,7 @@ def grid_search_ml1m(args):
         )
         model_path = os.path.join(args.grid_dir, f"ml1m_trial_{trial}.pt")
         history_path = os.path.join(args.grid_dir, f"ml1m_trial_{trial}.csv")
-        os.makedirs(args.grid_https://github.com/0987qianlingteng/-DeepFM-dir, exist_ok=True)
+        os.makedirs(args.grid_dir, exist_ok=True)
         best, avg_t = _train_loop(model, train_loader, val_loader, local_args, model_path, history_path)
 
         results.append(

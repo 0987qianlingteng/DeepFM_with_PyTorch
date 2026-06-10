@@ -98,6 +98,6 @@ best_val_auc = 0.813159
 
 ## 参考资料
 
-DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
-MovieLens 1M Dataset
-PyTorch 官方文档
+1.DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
+2.MovieLens 1M Dataset
+3.PyTorch 官方文档

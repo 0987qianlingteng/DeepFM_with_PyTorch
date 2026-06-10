@@ -325,9 +325,9 @@ def grid_search_ml1m(args):
             dropout=dropouts,
             use_cuda=args.use_cuda,
         )
+        os.makedirs(args.grid_dir, exist_ok=True)
         model_path = os.path.join(args.grid_dir, f"ml1m_trial_{trial}.pt")
         history_path = os.path.join(args.grid_dir, f"ml1m_trial_{trial}.csv")
-        os.makedirs(args.grid_dir, exist_ok=True)
         best, avg_t = _train_loop(model, train_loader, val_loader, local_args, model_path, history_path)
 
         results.append(
@@ -447,3 +447,4 @@ if __name__ == "__main__":
         recommend_ml1m(args)
     elif args.cmd == "ml_grid":
         grid_search_ml1m(args)
+

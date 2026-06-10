@@ -29,7 +29,7 @@ pip install torch numpy pandas scikit-learn matplotlib
 
 ## 模型训练
 
-使用 MovieLens 1M 数据集重新对模型进行20轮训练：
+使用 MovieLens 1M 数据集重新训练模型：
 
 ```bash
 python main.py ml_train --ml1m_dir .\data\ml-1m\ml-1m --task_type implicit --neg_ratio 1 --max_rows 500000 --split_strategy random --epochs 20 --patience 4 --batch_size 8192 --eval_batch_size 16384 --embedding_size 24 --hidden_dims 256,128 --dropout 0.2,0.2 --lr 0.001 --model_path ml1m_dual_target_try5.pt --history_path ml1m_dual_target_try5.csv
@@ -80,11 +80,11 @@ http://127.0.0.1:7860
 
 网页支持：
 
-输入测试样本 ID
-选择 Top-N 推荐数量
-随机抽取测试样本
-展示当前样本电影、用户 ID、推荐电影名、电影类型和模型预测分数
-显示模型 AUC、电影数量和测试样本数量
+- 输入测试样本 ID
+- 选择 Top-N 推荐数量
+- 随机抽取测试样本
+- 展示当前样本电影、用户 ID、推荐电影名、电影类型和模型预测分数
+- 显示模型 AUC、电影数量和测试样本数量
 
 ## 实验结果
 
@@ -98,6 +98,6 @@ best_val_auc = 0.813159
 
 ## 参考资料
 
-1.DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
-2.MovieLens 1M Dataset
-3.PyTorch 官方文档
+- DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
+- MovieLens 1M Dataset
+- PyTorch 官方文档

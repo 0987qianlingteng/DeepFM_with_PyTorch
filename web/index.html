@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepFM MovieLens 推荐演示</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">DeepFM / MovieLens 1M</p>
+        <h1>电影个性化推荐演示</h1>
+        <p class="subtitle">输入测试样本 ID，系统会根据该用户画像和历史偏好实时生成 Top-N 推荐电影列表。</p>
+      </div>
+      <div class="metrics" aria-label="模型状态">
+        <div>
+          <span id="metricAuc">--</span>
+          <small>Best AUC</small>
+        </div>
+        <div>
+          <span id="metricMovies">--</span>
+          <small>Movies</small>
+        </div>
+        <div>
+          <span id="metricSamples">--</span>
+          <small>Test Samples</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="control-panel">
+      <label>
+        测试 ID
+        <input id="testId" type="number" min="0" value="25" autocomplete="off">
+      </label>
+      <label>
+        推荐数量
+        <select id="topN">
+          <option value="5" selected>Top-5</option>
+          <option value="8">Top-8</option>
+          <option value="10">Top-10</option>
+        </select>
+      </label>
+      <button id="recommendBtn" type="button">生成推荐</button>
+      <button id="randomBtn" class="secondary" type="button">随机样本</button>
+    </section>
+
+    <section id="message" class="message" hidden></section>
+
+    <section class="result-grid">
+      <article class="sample-panel">
+        <p class="panel-label">当前测试样本</p>
+        <h2 id="sampleTitle">等待输入</h2>
+        <p id="sampleMeta">输入测试 ID 后查看对应用户与样本电影。</p>
+      </article>
+      <article class="recommend-panel">
+        <div class="panel-head">
+          <p class="panel-label">Top-N 推荐结果</p>
+          <span id="userTag">User --</span>
+        </div>
+        <div id="recommendations" class="recommendations"></div>
+      </article>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

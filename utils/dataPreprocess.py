@@ -2,9 +2,8 @@
 Preprocess Criteo dataset. This dataset was used for the Display Advertising
 Challenge (https://www.kaggle.com/c/criteo-display-ad-challenge).
 """
+import argparse
 import os
-import sys
-import click
 import random
 import collections
 
@@ -39,6 +38,9 @@ class CategoryDictGenerator:
             self.dicts[i] = filter(lambda x: x[1] >= cutoff,
                                    self.dicts[i].items())
             self.dicts[i] = sorted(self.dicts[i], key=lambda x: (-x[1], x[0]))
+            if not self.dicts[i]:
+                self.dicts[i] = {'<unk>': 0}
+                continue
             vocabs, _ = list(zip(*self.dicts[i]))
             self.dicts[i] = dict(zip(vocabs, range(1, len(vocabs) + 1)))
             self.dicts[i]['<unk>'] = 0
@@ -83,7 +85,7 @@ class ContinuousFeatureGenerator:
 # @click.command("preprocess")
 # @click.option("--datadir", type=str, help="Path to raw criteo dataset")
 # @click.option("--outdir", type=str, help="Path to save the processed data")
-def preprocess(datadir, outdir, num_train_sample = 10000, num_test_sample = 10000):
+def preprocess(datadir, outdir, num_train_sample=10000, num_test_sample=10000, cutoff=1):
     """
     All the 13 integer features are normalzied to continous values and these
     continous features are combined into one vecotr with dimension 13.
@@ -95,7 +97,7 @@ def preprocess(datadir, outdir, num_train_sample = 10000, num_test_sample = 1000
 
     dicts = CategoryDictGenerator(len(categorial_features))
     dicts.build(
-        os.path.join(datadir, 'train.txt'), categorial_features, cutoff=200)
+        os.path.join(datadir, 'train.txt'), categorial_features, cutoff=cutoff)
 
     dict_sizes = dicts.dicts_sizes()
     with open(os.path.join(outdir, 'feature_sizes.txt'), 'w') as feature_sizes:
@@ -128,20 +130,27 @@ def preprocess(datadir, outdir, num_train_sample = 10000, num_test_sample = 1000
                 out_train.write(','.join([continous_vals, categorial_vals, label]) + '\n')
                     
 
+    test_data_path = os.path.join(datadir, 'test.txt')
+    if not os.path.exists(test_data_path):
+        test_data_path = os.path.join(datadir, 'dev.txt')
+
     with open(os.path.join(outdir, 'test.txt'), 'w') as out:
-        with open(os.path.join(datadir, 'test.txt'), 'r') as f:
+        with open(test_data_path, 'r') as f:
             for line in f.readlines()[:num_test_sample]:
                 features = line.rstrip('\n').split('\t')
+                # Raw data may include label (40 columns) or not (39 columns).
+                index_offset = 0 if len(features) >= 40 else -1
 
                 continous_vals = []
                 for i in range(0, len(continous_features)):
-                    val = dists.gen(i, features[continous_features[i] - 1])
+                    feature_index = continous_features[i] + index_offset
+                    val = dists.gen(i, features[feature_index])
                     continous_vals.append("{0:.6f}".format(val).rstrip('0')
                                           .rstrip('.'))
                 categorial_vals = []
                 for i in range(0, len(categorial_features)):
-                    val = dicts.gen(i, features[categorial_features[
-                        i] - 1])
+                    feature_index = categorial_features[i] + index_offset
+                    val = dicts.gen(i, features[feature_index])
                     categorial_vals.append(str(val))
 
                 continous_vals = ','.join(continous_vals)
@@ -149,4 +158,24 @@ def preprocess(datadir, outdir, num_train_sample = 10000, num_test_sample = 1000
                 out.write(','.join([continous_vals, categorial_vals]) + '\n')
 
 if __name__ == "__main__":
-    preprocess('../data/raw', '../data')
+    parser = argparse.ArgumentParser(description="Preprocess Criteo raw dataset")
+    parser.add_argument("--datadir", type=str, default=None, help="Raw data dir (contains train.txt/dev.txt)")
+    parser.add_argument("--outdir", type=str, default=None, help="Output dir for processed files")
+    parser.add_argument("--num_train_sample", type=int, default=10000)
+    parser.add_argument("--num_test_sample", type=int, default=10000)
+    parser.add_argument("--cutoff", type=int, default=1, help="Category frequency cutoff")
+    args = parser.parse_args()
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.abspath(os.path.join(base_dir, "..", "data"))
+    raw_dir = os.path.join(data_dir, "raw")
+    datadir = args.datadir if args.datadir else raw_dir
+    outdir = args.outdir if args.outdir else data_dir
+    os.makedirs(outdir, exist_ok=True)
+    preprocess(
+        datadir,
+        outdir,
+        num_train_sample=args.num_train_sample,
+        num_test_sample=args.num_test_sample,
+        cutoff=args.cutoff,
+    )
